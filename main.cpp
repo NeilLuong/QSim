@@ -10,15 +10,18 @@ using Gate = std::vector<std::vector<Complex>>;
 
 class StateVector {
 private:
-    std::vector<Complex> m_qubit { Complex(1.0, 0.0), Complex(0.0, 0.0) };
+    std::vector<Complex> m_state { Complex(1.0, 0.0), Complex(0.0, 0.0),  Complex(0.0, 0.0), Complex(0.0, 0.0) };
 public:
     StateVector() {}
 
-    void apply_gate(Gate gate) {
-        Complex new_qubit_0 = gate[0][0] * m_qubit[0] + gate[0][1] * m_qubit[1];
-        Complex new_qubit_1 = gate[1][0] * m_qubit[0] + gate[1][1] * m_qubit[1];
-        m_qubit[0] = new_qubit_0;
-        m_qubit[1] = new_qubit_1;
+    void apply_gate(const Gate& gate) {
+        std::vector<Complex> new_state (m_state.size(), Complex(0.0, 0.0));
+        for (int i = 0; i < m_state.size(); ++i) {
+            for (int j = 0; j < m_state.size(); ++j) {
+                new_state[i] += gate[i][j] * m_state[j];
+            }
+        }
+        m_state = new_state;
     }
 
     void print_result() {
