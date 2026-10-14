@@ -1,1 +1,2 @@
-cpp17
+Quantum State Vector Simulator
+
