@@ -4,15 +4,20 @@
 #include <cmath>
 #include <string>
 
+#include "Gate.h"
+
 using Complex = std::complex<double>;
 
 using Gate = std::vector<std::vector<Complex>>;
 
 class StateVector {
 private:
-    std::vector<Complex> m_state { Complex(1.0, 0.0), Complex(0.0, 0.0),  Complex(0.0, 0.0), Complex(0.0, 0.0) };
+    std::vector<Complex> m_state;
 public:
-    StateVector() {}
+    StateVector(int nr_of_qubits) {
+        m_state.resize(1 << nr_of_qubits, Complex(0.0, 0.0));
+        m_state[0] = Complex(1.0, 0.0);
+    }
 
     void apply_gate(const Gate& gate) {
         std::vector<Complex> new_state (m_state.size(), Complex(0.0, 0.0));
@@ -51,53 +56,12 @@ Gate on_qubit(const Gate& gate, int target, const Gate& identity_gate) {
 }
 
 int main() {
-    StateVector state;
+    int nr_of_qubits;
 
-    Gate gate_x {
-        { Complex(0.0, 0.0), Complex(1.0, 0.0)},
-        { Complex(1.0, 0.0), Complex(0.0, 0.0)}
-    };
+    std::cout << "Enter the number of qubits (1, 2 or 3):" << std::endl;
+    std::cin >> nr_of_qubits;
 
-    Gate gate_y {
-        { Complex(0.0, 0.0), Complex(0.0, -1.0)},
-        { Complex(0.0, 1.0), Complex(0.0, 0.0)}
-    };
-
-    Gate gate_z {
-        { Complex(1.0, 0.0), Complex(0.0, 0.0)},
-        { Complex(0.0, 0.0), Complex(-1.0, 0.0)}
-    };
-
-    Gate gate_i {
-        { Complex(1.0, 0.0), Complex(0.0, 0.0)},
-        { Complex(0.0, 0.0), Complex(1.0, 0.0)}
-    };
-
-    Gate gate_s {
-        { Complex(1.0, 0.0), Complex(0.0, 0.0)},
-        { Complex(0.0, 0.0), Complex(0.0, 1.0)}
-    };
-
-    double inv_sqrt2 = 1.0 / std::sqrt(2.0);
-    Gate gate_h {
-        { Complex(inv_sqrt2, 0.0), Complex(inv_sqrt2, 0.0)},
-        { Complex(inv_sqrt2, 0.0), Complex(-inv_sqrt2, 0.0)}
-    };
-
-    Gate gate_cx10 {
-        { Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) },
-        { Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) },
-        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0) },
-        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0) }
-    };
-
-    Gate gate_cx01 {
-        
-        { Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) },
-        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0) },
-        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0) },
-        { Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) }
-    };
+    StateVector state(nr_of_qubits);
 
     std::cout << "Enter gates seperated by spaces. 1 qubit gates have qubit number appended to each gate (X0, H1,...)," << std::endl;
     std::cout << "CNOT is CX<control><target> (CX01 or CX10)." << std::endl;
