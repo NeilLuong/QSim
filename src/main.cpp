@@ -13,8 +13,9 @@ using Gate = std::vector<std::vector<Complex>>;
 class StateVector {
 private:
     std::vector<Complex> m_state;
+    int m_nr_of_qubits;
 public:
-    StateVector(int nr_of_qubits) {
+    StateVector(int nr_of_qubits) : m_nr_of_qubits(nr_of_qubits) {
         m_state.resize(1 << nr_of_qubits, Complex(0.0, 0.0));
         m_state[0] = Complex(1.0, 0.0);
     }
@@ -52,7 +53,19 @@ Gate tensor_product(const Gate& gate1, const Gate& gate2) {
     }
 
 Gate on_qubit(const Gate& gate, int target, const Gate& identity_gate) {
-    return target == 0 ? tensor_product(identity_gate, gate) : tensor_product(gate, identity_gate);
+    Gate result;
+    if (target == 1) {
+        Gate temp = tensor_product(identity_gate, gate);
+        result = tensor_product(temp, identity_gate);
+    } else if (target == 0) {
+        Gate temp = tensor_product(identity_gate, identity_gate);
+        result = tensor_product(temp, gate);
+    } else {
+        Gate temp = tensor_product(identity_gate, identity_gate);
+        result = tensor_product(gate, temp);
+    } 
+    return result;
+//  return target == 0 ? tensor_product(identity_gate, gate) : tensor_product(gate, identity_gate);
 }
 
 int main() {
