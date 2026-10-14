@@ -26,16 +26,32 @@ public:
 
     void print_result() {
         std::cout << "------------------------------------------" << std::endl;
-        std::cout << "| Val      | Comp          | Prob        |" << std::endl;
-        std::cout << "| 0        | " << m_qubit[0] << " | " << std::norm(m_qubit[0]) << " |" << std::endl;
-        std::cout << "| 1        | " << m_qubit[1] << " | " << std::norm(m_qubit[1]) << " |" << std::endl;
+        std::cout << "| q1q0     | Comp          | Prob        |" << std::endl;
+        std::cout << "| 00       | " << m_state[0] << " | " << std::norm(m_state[0]) << " |" << std::endl;
+        std::cout << "| 01       | " << m_state[1] << " | " << std::norm(m_state[1]) << " |" << std::endl;
+        std::cout << "| 10       | " << m_state[2] << " | " << std::norm(m_state[2]) << " |" << std::endl;
+        std::cout << "| 11       | " << m_state[3] << " | " << std::norm(m_state[3]) << " |" << std::endl;
     }
 };
 
+Gate tensor_product(const Gate& gate1, const Gate& gate2) {
+        size_t m = gate1.size();
+        size_t n = gate2.size();
+        Gate result (m*n, std::vector<Complex>(m*n, Complex(0.0, 0.0)));
+        for (size_t i = 0; i < m; ++i)
+        for (size_t j = 0; j < m; ++j)
+            for (size_t k = 0; k < n; ++k)
+                for (size_t l = 0; l < n; ++l)
+                    result[i * n + k][j * n + l] = gate1[i][j] * gate2[k][l];
+        return result;
+    }
 
+Gate on_qubit(const Gate& gate, int target, const Gate& identity_gate) {
+    return target == 0 ? tensor_product(identity_gate, gate) : tensor_product(gate, identity_gate);
+}
 
 int main() {
-    StateVector qubit;
+    StateVector state;
 
     Gate gate_x {
         { Complex(0.0, 0.0), Complex(1.0, 0.0)},
@@ -68,37 +84,52 @@ int main() {
         { Complex(inv_sqrt2, 0.0), Complex(-inv_sqrt2, 0.0)}
     };
 
-    std::cout << "Enter a sequence of gate(s) to apply to the qubit (X, Y, Z, I, S, H): " << std::endl;
-    std::cout << "Example: XYZ, XIH, ..." << std::endl;
+    Gate gate_cx10 {
+        { Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) },
+        { Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) },
+        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0) },
+        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0) }
+    };
 
-    std::string gate_sequence;
-    std::cin >> gate_sequence;
+    Gate gate_cx01 {
+        
+        { Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) },
+        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0) },
+        { Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0) },
+        { Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0) }
+    };
 
-    for (auto c : gate_sequence) {
-        switch (c) {
-            case 'X':
-                qubit.apply_gate(gate_x);
-                break;
-            case 'Y':
-                qubit.apply_gate(gate_y);
-                break;
-            case 'Z':
-                qubit.apply_gate(gate_z);
-                break;
-            case 'I':
-                qubit.apply_gate(gate_i);
-                break;
-            case 'S':
-                qubit.apply_gate(gate_s);
-                break;
-            case 'H':
-                qubit.apply_gate(gate_h);
-                break;
+    std::cout << "Enter gates seperated by spaces. 1 qubit gates have qubit number appended to each gate (X0, H1,...)," << std::endl;
+    std::cout << "CNOT is CX<control><target> (CX01 or CX10)." << std::endl;
+    std::cout << "Example: H0 CX01" << std::endl;
+
+    std::string line;
+    std::getline(std::cin, line);
+    std::istringstream tokens(line);
+    std::string token;
+ 
+    while (tokens >> token) {
+        if (token == "CX01") { state.apply_gate(gate_cx01); continue; }
+        if (token == "CX10") { state.apply_gate(gate_cx10); continue; }
+ 
+        if (token.size() != 2 || (token[1] != '0' && token[1] != '1')) {
+            std::cout << "Invalid gate: " << token << std::endl;
+            continue;
+        }
+        int target = token[1] - '0';
+ 
+        switch (token[0]) {
+            case 'X': state.apply_gate(on_qubit(gate_x, target, gate_i)); break;
+            case 'Y': state.apply_gate(on_qubit(gate_y, target, gate_i)); break;
+            case 'Z': state.apply_gate(on_qubit(gate_z, target, gate_i)); break;
+            case 'I': state.apply_gate(on_qubit(gate_i, target, gate_i)); break;
+            case 'S': state.apply_gate(on_qubit(gate_s, target, gate_i)); break;
+            case 'H': state.apply_gate(on_qubit(gate_h, target, gate_i)); break;
             default:
-                std::cout << "Invalid gate: " << c << std::endl;
+                std::cout << "Invalid gate: " << token << std::endl;
         }
     }
-
-    qubit.print_result();
+ 
+    state.print_result();
     return 0;
 }
