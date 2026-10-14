@@ -6,10 +6,6 @@
 
 #include "Gate.h"
 
-using Complex = std::complex<double>;
-
-using Gate = std::vector<std::vector<Complex>>;
-
 class StateVector {
 private:
     std::vector<Complex> m_state;
@@ -52,19 +48,25 @@ Gate tensor_product(const Gate& gate1, const Gate& gate2) {
         return result;
     }
 
-Gate on_qubit(const Gate& gate, int target, const Gate& identity_gate) {
-    Gate result;
-    if (target == 1) {
-        Gate temp = tensor_product(identity_gate, gate);
-        result = tensor_product(temp, identity_gate);
-    } else if (target == 0) {
-        Gate temp = tensor_product(identity_gate, identity_gate);
-        result = tensor_product(temp, gate);
-    } else {
-        Gate temp = tensor_product(identity_gate, identity_gate);
-        result = tensor_product(gate, temp);
-    } 
+Gate on_qubit(const Gate& gate, int target, const Gate& identity_gate, int nr_of_qubits) {
+    Gate result = {{Complex(1.0, 0.0)}};
+    for (int i = nr_of_qubits - 1; i >= 0; --i) {
+        Gate next_gate = (i == target) ? gate : identity_gate;
+        result = tensor_product(result, next_gate);
+    }
     return result;
+    // Gate result;
+    // if (target == 1) {
+    //     Gate temp = tensor_product(identity_gate, gate);
+    //     result = tensor_product(temp, identity_gate);
+    // } else if (target == 0) {
+    //     Gate temp = tensor_product(identity_gate, identity_gate);
+    //     result = tensor_product(temp, gate);
+    // } else {
+    //     Gate temp = tensor_product(identity_gate, identity_gate);
+    //     result = tensor_product(gate, temp);
+    // } 
+    // return result;
 //  return target == 0 ? tensor_product(identity_gate, gate) : tensor_product(gate, identity_gate);
 }
 
@@ -73,6 +75,7 @@ int main() {
 
     std::cout << "Enter the number of qubits (1, 2 or 3):" << std::endl;
     std::cin >> nr_of_qubits;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
 
     StateVector state(nr_of_qubits);
 
@@ -96,12 +99,12 @@ int main() {
         int target = token[1] - '0';
  
         switch (token[0]) {
-            case 'X': state.apply_gate(on_qubit(gate_x, target, gate_i)); break;
-            case 'Y': state.apply_gate(on_qubit(gate_y, target, gate_i)); break;
-            case 'Z': state.apply_gate(on_qubit(gate_z, target, gate_i)); break;
-            case 'I': state.apply_gate(on_qubit(gate_i, target, gate_i)); break;
-            case 'S': state.apply_gate(on_qubit(gate_s, target, gate_i)); break;
-            case 'H': state.apply_gate(on_qubit(gate_h, target, gate_i)); break;
+            case 'X': state.apply_gate(on_qubit(gate_x, target, gate_i, nr_of_qubits)); break;
+            case 'Y': state.apply_gate(on_qubit(gate_y, target, gate_i, nr_of_qubits)); break;
+            case 'Z': state.apply_gate(on_qubit(gate_z, target, gate_i, nr_of_qubits)); break;
+            case 'I': state.apply_gate(on_qubit(gate_i, target, gate_i, nr_of_qubits)); break;
+            case 'S': state.apply_gate(on_qubit(gate_s, target, gate_i, nr_of_qubits)); break;
+            case 'H': state.apply_gate(on_qubit(gate_h, target, gate_i, nr_of_qubits)); break;
             default:
                 std::cout << "Invalid gate: " << token << std::endl;
         }

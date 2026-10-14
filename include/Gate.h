@@ -1,5 +1,8 @@
 #pragma once
 
+using Complex = std::complex<double>;
+using Gate = std::vector<std::vector<Complex>>;
+
 Gate gate_x{
     {Complex(0.0, 0.0), Complex(1.0, 0.0)},
     {Complex(1.0, 0.0), Complex(0.0, 0.0)}};
