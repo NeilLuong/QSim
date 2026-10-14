@@ -48,7 +48,7 @@ Gate tensor_product(const Gate& gate1, const Gate& gate2) {
         return result;
     }
 
-Gate on_qubit(const Gate& gate, int target, const Gate& identity_gate, int nr_of_qubits) {
+Gate lift_gate(const Gate& gate, int target, const Gate& identity_gate, int nr_of_qubits) {
     Gate result = {{Complex(1.0, 0.0)}};
     for (int i = nr_of_qubits - 1; i >= 0; --i) {
         Gate next_gate = (i == target) ? gate : identity_gate;
@@ -99,12 +99,12 @@ int main() {
         int target = token[1] - '0';
  
         switch (token[0]) {
-            case 'X': state.apply_gate(on_qubit(gate_x, target, gate_i, nr_of_qubits)); break;
-            case 'Y': state.apply_gate(on_qubit(gate_y, target, gate_i, nr_of_qubits)); break;
-            case 'Z': state.apply_gate(on_qubit(gate_z, target, gate_i, nr_of_qubits)); break;
-            case 'I': state.apply_gate(on_qubit(gate_i, target, gate_i, nr_of_qubits)); break;
-            case 'S': state.apply_gate(on_qubit(gate_s, target, gate_i, nr_of_qubits)); break;
-            case 'H': state.apply_gate(on_qubit(gate_h, target, gate_i, nr_of_qubits)); break;
+            case 'X': state.apply_gate(lift_gate(gate_x, target, gate_i, nr_of_qubits)); break;
+            case 'Y': state.apply_gate(lift_gate(gate_y, target, gate_i, nr_of_qubits)); break;
+            case 'Z': state.apply_gate(lift_gate(gate_z, target, gate_i, nr_of_qubits)); break;
+            case 'I': state.apply_gate(lift_gate(gate_i, target, gate_i, nr_of_qubits)); break;
+            case 'S': state.apply_gate(lift_gate(gate_s, target, gate_i, nr_of_qubits)); break;
+            case 'H': state.apply_gate(lift_gate(gate_h, target, gate_i, nr_of_qubits)); break;
             default:
                 std::cout << "Invalid gate: " << token << std::endl;
         }
