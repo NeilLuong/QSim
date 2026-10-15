@@ -27,16 +27,3 @@ double inv_sqrt2 = 1.0 / std::sqrt(2.0);
 Gate gate_h{
     {Complex(inv_sqrt2, 0.0), Complex(inv_sqrt2, 0.0)},
     {Complex(inv_sqrt2, 0.0), Complex(-inv_sqrt2, 0.0)}};
-
-Gate gate_cx10{
-    {Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0)},
-    {Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0)},
-    {Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0)},
-    {Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0)}};
-
-Gate gate_cx01{
-
-    {Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0)},
-    {Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0)},
-    {Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0)},
-    {Complex(0.0, 0.0), Complex(1.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0)}};

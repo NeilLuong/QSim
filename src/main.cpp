@@ -43,6 +43,18 @@ public:
         }
     }
 
+    void apply_ccnot(int control1, int control2, int target) {
+        for (int i = 0; i < m_state.size(); ++i) {
+            bool control_on1 = (i >> control1) & 1;
+            bool control_on2 = (i >> control2) & 1;
+            bool target_off = !((i >> target) & 1);
+            if (control_on1 && control_on2 && target_off) {
+                int j = i ^ (1 << target);
+                std::swap(m_state[i], m_state[j]);
+            }
+        }
+    }
+
     void print_result() {
         std::string label;
         for (int q = m_nr_of_qubits - 1; q >= 0; --q) label += "q" + std::to_string(q);
@@ -146,6 +158,16 @@ int main() {
                 continue;
             }
             state.apply_cnot(control, target);
+            continue;
+        } else if (token.rfind("CCX", 0) == 0) {
+            int control1, control2, target;
+            if (token.size() != 6 || !parse_qubit(token[3], nr_of_qubits, control1)
+                                || !parse_qubit(token[4], nr_of_qubits, control2)
+                                || !parse_qubit(token[5], nr_of_qubits, target)) {
+                std::cout << "Invalid gate: " << token << std::endl;
+                continue;
+            }
+            state.apply_ccnot(control1, control2, target);
             continue;
         }
  
