@@ -1,5 +1,9 @@
 #pragma once
 
+#include <complex>
+#include <vector>
+#include <cmath>
+
 using Complex = std::complex<double>;
 using Gate = std::vector<std::vector<Complex>>;
 
